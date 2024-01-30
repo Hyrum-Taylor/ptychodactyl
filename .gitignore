@@ -1,0 +1,2 @@
+# ignore libraries we don't want backed up
+/pyAndorSDK2/
