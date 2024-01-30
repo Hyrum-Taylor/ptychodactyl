@@ -854,5 +854,31 @@ class YourCamera(Camera):
 
 
 if __name__ == '__main__':
-    cam = ThorCam(False)
-    cam.analyze_frame()
+    cam = Andor(True)
+    #cam.set_brightness_checker(50000, .20, 3)  # NEW Might need to tinker with these a bit
+    print('running cam.analyze_frame()')
+    plt.figure()  # doesn't do anything yet, just says that it's about to make something
+
+    subject = "Successful run"  # Title of email sent at end of run
+    message = "Experiment completed successfully (ptychodactyl fork)"  # main body of email sent at end of run
+
+    try:  # NEW
+        next_frame = cam.get_frame()
+        # raise Exception("Testing to make sure exceptions are emailed properly")
+    except Exception as error:
+        print("Error in code - ", error)
+        subject = "Error in project"
+        message = "Experiment ended without finishing\n\nError:\n" + str(error)
+        # If there is a loop, break it here to protect camera
+    print(np.max(next_frame))  # spits out number, max pixel intensity
+
+    from general import sendEmail
+    sendEmail(subject, message)
+
+    plt.imshow(next_frame), plt.colorbar()
+    plt.show()
+
+    cam.analyze_frame()  # You have to exit out of the window once here
+    print('running cam.running_analysis()')
+    # Same window, but you have to ^c to exit
+    cam.running_analysis()

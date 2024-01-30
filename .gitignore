@@ -1,3 +1,8 @@
 # ignore libraries we don't want backed up
 /pyAndorSDK2/
 /.idea/
+/Attocube/
+/venv/
+/ptycho/appPassword
+/ptycho/emailPassword
+/ptycho/email_list.txt

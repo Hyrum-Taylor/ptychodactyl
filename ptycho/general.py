@@ -9,6 +9,7 @@ from scipy import ndimage
 from scipy.misc import ascent, face
 from skimage import transform, draw
 from skimage import data as skidata
+import smtplib, ssl
 
 
 def fft(image):
@@ -160,6 +161,44 @@ def demo_image(size):
     img = a * np.exp(2j*np.pi*a)
     return img
 
+def sendEmail(subject, message):
+    """
+    subject is the title of the email, message is the body
+    function used to send email to people on list when an experiment was completed
+    https://realpython.com/python-send-email/
+    To add people to email list, add names to email_list.txt file
+    """
+    # To set up localhost debugging server, open cmd, run ---  python3 -m smtpd -c DebuggingServer -n localhost:1025
+
+    file1 = open(os.path.join(Path(__file__).parent.resolve(), "email_list.txt"), 'r') # gets emails to send report to
+    emailAddresses = file1.readlines()
+    file1.close()
+
+    smtp_server = "smtp.gmail.com"
+    port = 465  # For localhost, 1025. For gmail smpt-ssl, 465
+    # password = getpass.getpass("Type your password and press enter: ") # In case you ever need to not save the password in the script
+
+    file2 = open(os.path.join(Path(__file__).parent.resolve(), "appPassword"), 'r')  # gets emails to send report to
+    appPassword = file2.readline()
+    file2.close()
+
+    sender_email = "ptychdactylprogram@gmail.com"
+    # email pasword is in emailPassword file if you want to use email
+    app_password = appPassword
+
+    # Create a secure SSL context
+    context = ssl.create_default_context()
+
+    try:
+        with smtplib.SMTP_SSL(smtp_server, port, context=context) as server:
+            server.login(sender_email, app_password)
+            for m in emailAddresses:
+                if (m.rstrip() == ""):
+                    continue
+                print("email sent to " + m)
+                server.sendmail(sender_email, m.rstrip(), "Subject: " + subject + "\n" + message)
+    except Exception as e:
+        print("An error occurred: " + str(e))
 
 if __name__ == '__main__':
     a = demo_binary(512)
