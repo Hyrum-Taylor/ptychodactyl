@@ -179,12 +179,11 @@ def sendEmail(subject, message):
     # password = getpass.getpass("Type your password and press enter: ") # In case you ever need to not save the password in the script
 
     file2 = open(os.path.join(Path(__file__).parent.resolve(), "appPassword"), 'r')  # gets emails to send report to
-    appPassword = file2.readline()
+    app_password = file2.readline()
     file2.close()
 
     sender_email = "ptychdactylprogram@gmail.com"
     # email pasword is in emailPassword file if you want to use email
-    app_password = appPassword
 
     # Create a secure SSL context
     context = ssl.create_default_context()

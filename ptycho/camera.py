@@ -73,9 +73,9 @@ class Camera(ABC):
             self.full_height = self.defaults['height']
             self.full_shape = (self.full_height, self.full_width)
             self.full_size = self.full_height*self.full_width
-            self.binning = 1
-            self.width = self.defaults['width']
-            self.height = self.defaults['height']
+            self.binning = self.defaults['binning']
+            self.width = round(self.defaults['width'] / self.binning)
+            self.height = round(self.defaults['height'] / self.binning)
             self.im_shape = (self.height, self.width)
             self.im_size = self.width * self.height
             self.pixel_size = self.defaults['pixel_size']
@@ -184,7 +184,7 @@ class Camera(ABC):
         self.arm()
         for i in range(self.frames_per_take):
             frame = self.get_frame()
-            data = data + downscale_local_mean(frame, (self.binning, self.binning))
+            data = frame #data + downscale_local_mean(frame, (self.binning, self.binning))
         self.disarm()
         if show:
             plt.subplot(111, xticks=[], yticks=[])
@@ -223,7 +223,7 @@ class Camera(ABC):
         """
         self.frames_per_take = frames_per_take
 
-    def set_resolution(self, resolution=None, space_factor=1.0):
+    def set_resolution(self, binning=None, space_factor=1.0): #(self, resolution=None, space_factor=1.0):
         """
         Set camera resolution. The functionality of this is a little counter-intuitive. The **resolution** parameter is
         the side-length of the desired diffraction data. This method will set the camera to bin each image as much as
@@ -236,15 +236,19 @@ class Camera(ABC):
         :param space_factor: extra space on the edges
         :type space_factor: float
         """
-        if resolution is not None:
-            self.binning = int(self.full_height / (space_factor*resolution))
-        else:
-            self.binning = 1
-        self.width = self.full_width // self.binning
-        self.height = self.full_height // self.binning
-        self.im_shape = (self.height, self.width)
-        self.im_size = self.width * self.height
-        self.pixel_size = self.defaults['pixel_size'] * self.binning
+        if binning is not None:
+            self.binning = binning # update binning
+            self.width = round(self.defaults['width'] / self.binning) # update everything else that depends on binning
+            self.height = round(self.defaults['height'] / self.binning)
+            self.im_shape = (self.height, self.width)
+            self.im_size = self.width * self.height
+            """self.binning = int(self.full_height / (space_factor*resolution))
+            self.width = self.full_width // self.binning
+            self.height = self.full_height // self.binning
+            self.im_shape = (self.height, self.width)
+            self.im_size = self.width * self.height
+            self.pixel_size = self.defaults['pixel_size'] * self.binning"""
+
         return
 
     def find_center(self, img=None):
@@ -685,6 +689,7 @@ class Andor(Camera):
         defaults = {
             'width': 2048,
             'height': 2048,
+            'binning': 8,
             'exposure': 80,
             'gain': 0,
             'pixel_size': 13.5,
@@ -707,7 +712,7 @@ class Andor(Camera):
         self._sdk.SetAcquisitionMode(1)  # Single image capture
         self._sdk.SetReadMode(4)  # Full image mode
         self._sdk.SetTriggerMode(0)  # Internally regulated triggering
-        self._sdk.SetImage(1, 1, 1, self.full_width, 1, self.full_height)
+        self._sdk.SetImage(self.binning, self.binning, 1, self.full_width, 1, self.full_height)
         self._sdk.SetShutter(1, 0, 15, 15)
         self._sdk.CoolerON()
         self._sdk.SetCoolerMode(int(self.hold_temp))
@@ -783,9 +788,9 @@ class Andor(Camera):
         # range increase, so there's no need for this function.
         self._sdk.StartAcquisition()
         self._sdk.WaitForAcquisition()
-        _, buffer = self._sdk.GetMostRecentImage(self.full_size)
-        image = np.ctypeslib.as_array(buffer, self.full_size)
-        image = np.reshape(image, self.full_shape)
+        _, buffer = self._sdk.GetMostRecentImage(self.im_size)
+        image = np.ctypeslib.as_array(buffer, self.im_size)
+        image = np.reshape(image, self.im_shape)
         return image
 
     def disarm(self):
@@ -877,6 +882,7 @@ if __name__ == '__main__':
 
     plt.imshow(next_frame), plt.colorbar()
     plt.show()
+    print("single image shown")
 
     cam.analyze_frame()  # You have to exit out of the window once here
     print('running cam.running_analysis()')
