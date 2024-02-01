@@ -338,6 +338,7 @@ class CollectData(PtychoData):
             # Translate all the positions so that the minimum is zero.
             self._position = self.position - np.min(self.position, axis=1)
 
+            """
             self.print('Cropping to square...')
             if np.any(np.array(self._shape) > cropto):
                 # Crops the image down to save_reconstruction space.
@@ -352,6 +353,7 @@ class CollectData(PtychoData):
                 self._im_data = self._im_data[:, :, cy - d:cy + d, cx - d:cx + d]
                 self._bkgd = self._bkgd[cy - d:cy + d, cx - d:cx + d]
                 self._shape = (self.im_data.shape[-2], self.im_data.shape[-1])
+                """
 
             if timestamp:
                 # Add the date to the end of the title. Optional for simulated data.

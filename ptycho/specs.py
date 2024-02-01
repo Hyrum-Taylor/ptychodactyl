@@ -5,7 +5,7 @@ from pathlib import Path
 class CollectionSpecs:
     def __init__(self, title, stages, camera, data_dir='', scan_center=(0.0, 0.0), scan_width=1.0, scan_height=1.0,
                  scan_step=0.1, z_position=0.0, scan_pattern='spiral', num_rotations=0, background=True,
-                 frames_per_take=5, resolution=512, exposure=100, gain=1, distance=0.1, energy=1.97, verbose=False):
+                 frames_per_take=5, binning=4, exposure=100, gain=1, distance=0.1, energy=1.97, verbose=False): #resolution=512
         """
         A class to specify parameters for ptychographic data collection. All distances should be given in millimeters
         unless otherwise specified.
@@ -78,7 +78,8 @@ class CollectionSpecs:
         self.camera = camera  # Keyword for the camera that you're using
         self.background = background  # Set to true to record a background image with the laser off
         self.frames_per_take = frames_per_take  # Number of frames to sum for each measurement (including background)
-        self.resolution = resolution  # Desired final image size (number of pixels on a side)
+        #self.resolution = resolution  # Desired final image size (number of pixels on a side)
+        self.binning = binning
         self.exposure = exposure  # Exposure time (ms)
         self.gain = gain  # Analog gain
 

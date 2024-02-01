@@ -20,9 +20,9 @@ from ptycho.specs import CollectionSpecs
 
 SPECS = CollectionSpecs(
     # General parameters - these MUST be given values.
-    title='test',
-    stages='micronix',
-    camera='thorcam',
+    title='test-hyrum-bin_4-test-2',
+    stages='attocube',
+    camera='andor',
 
     # Scan parameters
     scan_center=(0.0, 0.0),
@@ -54,7 +54,8 @@ def collect(specs):
     camera_model = specs.camera
     background = specs.background
     frames_per_take = specs.frames_per_take
-    resolution = specs.resolution
+    #resolution = specs.resolution
+    binning = specs.binning
     exposure = specs.exposure
     gain = specs.gain
     distance = specs.distance
@@ -73,7 +74,8 @@ def collect(specs):
     stages = get_stages(stage_model, verbose=verbose)
     camera = get_camera(camera_model, verbose=verbose)
     camera.set_frames_per_take(frames_per_take)
-    camera.set_resolution(resolution)
+    #camera.set_resolution(resolution)
+    camera.set_resolution(binning)
     camera.set_exposure(exposure)
     camera.set_gain(gain)
     dataset = CollectData(num_translations=num_translations, num_rotations=num_rotations, title=title,
@@ -116,7 +118,7 @@ def collect(specs):
     stages.home_all()
 
     # Save the data as a .pty (H5) file
-    dataset.save_to_pty(cropto=resolution)
+    dataset.save_to_pty(cropto=round(2048/binning))
 
 
 if __name__ == '__main__':

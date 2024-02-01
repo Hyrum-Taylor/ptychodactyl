@@ -684,12 +684,12 @@ class Mightex(Camera):
 
 class Andor(Camera):
 
-    def __init__(self, verbose=False, temperature=-59, hold_temp=True):
+    def __init__(self, verbose=False, temperature=-60, hold_temp=True):
         from pyAndorSDK2.atmcd import atmcd
         defaults = {
             'width': 2048,
             'height': 2048,
-            'binning': 8,
+            'binning': 1,
             'exposure': 80,
             'gain': 0,
             'pixel_size': 13.5,
